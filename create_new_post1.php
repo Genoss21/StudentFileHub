@@ -25,6 +25,7 @@
             ?>
 
         </div>
+        <!--Toast-->
 
         <!--Text Area-->
         <div class="flex-1 px-2 pt-2 mt-2">

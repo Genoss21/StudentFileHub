@@ -261,6 +261,8 @@ if (empty($_SESSION['user_id'])) {
     });
   </script>
 
+  <!--Toast-->
+
   <!--Disable scroll bar default-->
   <style>
     .overflow-y-auto::-webkit-scrollbar,
