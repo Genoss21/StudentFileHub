@@ -8,82 +8,7 @@
         <hr class="border-gray-300 dark:border-gray-700" />
 
         <!--Create new post-->
-        <form id="form1" method="POST" action="save.php" enctype="multipart/form-data">
-            <div class="flex">
-                <div class="m-2 w-10 py-1">
-                    <?php
-                    $defaultProfilePicture = 'Images/user1.jpg'; // Set the default picture URL
-                    
-                    // Check if the user is logged in
-                    if (isset($_SESSION['user_id'])) {
-                        $loggedInUserId = $_SESSION['user_id']; // Change this to the appropriate session variable for storing user ID
-                    
-                        // Retrieve profile picture for the logged-in user
-                        $sql = "SELECT profile_picture FROM users WHERE user_id = $loggedInUserId";
-                        $result = mysqli_query($conn, $sql) or die("Query unsuccessful");
-
-                        $row = mysqli_fetch_assoc($result);
-
-                        // Get the user's profile picture URL, or use the default if empty or not found
-                        $profilePictureUrl = !empty($row['profile_picture']) ? $row['profile_picture'] : $defaultProfilePicture;
-
-                        echo '<img class="inline-block h-10 w-10 rounded-full" src="' . $profilePictureUrl . '" alt="#" />'; // Display the user's profile picture or default picture
-                    } else {
-                        // Display the default picture for non-logged-in users
-                        echo '<img class="inline-block h-10 w-10 rounded-full" src="' . $defaultProfilePicture . '" alt="#" />';
-                    }
-                    ?>
-
-                </div>
-                <!--Toast-->
-
-                <!--Text Area-->
-                <div class="flex-1 px-2 pt-2 mt-2">
-                    <textarea
-                        class="bg-transparent font-medium text-lg w-full text-ellipsis border-0 focus:outline-none form-control text-gray-800 dark:text-gray-100 focus:ring-0 h-50"
-                        autocomplete="off" name="text_post" id="textArea" cols="50" rows="3"
-                        placeholder="What's happening?" style="overflow: hidden;"></textarea>
-                    <!-- File Previews -->
-                    <div id="file-preview1" class="flex flex-row flex-wrap gap-4 justify-center items-center">
-                        <!-- File previews will be inserted here -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Buttons for Create new post -->
-            <div class="flex justify-between border-t border-gray-300 dark:border-gray-700">
-                <div class="w-full">
-                    <div class="px-2">
-                        <div class="flex items-center">
-                            <div class="flex-1 text-center p-1 m-2 order-1">
-                                <input type="file" name="file_post" id="uploadpost1" onchange="previewFilesWithIcons(1)"
-                                    multiple accept=".jpg, .jpeg, .png, .gif, .pdf, .doc, .docx, .xls, .xlsx" />
-                                <label for="uploadpost1" href="#"
-                                    class="w-[160px] mt-1 ml-11 group flex items-center text-blue-400 px-6 py-2 text-base leading-6 font-medium rounded-full hover:bg-indigo-700 hover:text-blue-300">
-                                    <div class="flex flex-row space-x-2 justify-center">
-                                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                            width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="M18 9V4a1 1 0 0 0-1-1H8.914a1 1 0 0 0-.707.293L4.293 7.207A1 1 0 0 0 4 7.914V20a1 1 0 0 0 1 1h4M9 3v4a1 1 0 0 1-1 1H4m11 6v4m-2-2h4m3 0a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z" />
-                                        </svg>
-                                        <p>Upload file</p>
-                                    </div>
-                                </label>
-                            </div>
-
-                            <div class="flex text-center p-1 my-2 order-last justify-end">
-                                <button
-                                    class="text-white dark:text-gray-900 bg-indigo-500 hover:bg-gradient-to-r from-indigo-600 via-sky-400 to-emerald-200 font-bold py-2 px-8 rounded-full"
-                                    name="save">
-                                    Share post
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
+        <?php include 'create_new_post1.php' ?>
 
         <!--End Buttons for Create new post-->
         <hr class="border-gray-300 dark:border-gray-700" />
@@ -129,7 +54,7 @@
             ?>
 
             <!-- Popover php-->
-            <?php include 'popover.php' ?>
+            <?//php include 'popover.php' ?>
 
             <div>
                 <article class="hover:bg-gray-200 dark:hover:bg-gray-800 transition duration-350 ease-in-out">
@@ -180,33 +105,97 @@
                         </div>
                     </div>
 
-                    <div class="pl-16 overflow-none">
+                    <div class="px-16 overflow-none">
                         <p
-                            class="text-base width-auto font-medium text-gray-900 dark:text-white flex-shrink mx-2 fit-content break-words">
+                            class="text-base width-auto font-medium text-gray-900 dark:text-white flex-shrink mx-2 mb-2 fit-content break-words">
                             <?php echo $fetch['text_post']; ?>
                         </p>
 
                         <?php
-                        // Check if a file is uploaded
+                        // Debugging: Check the value of 'file_post'
+                        // echo "<pre>";
+                        // var_dump($fetch['file_post']); // Output the raw value of 'file_post'
+                        // echo "</pre>";
+                    
+                        // Check if files are uploaded
                         if (!empty($fetch['file_post'])) {
-                            $file_url = $fetch['file_post'];
-                            $file_extension = pathinfo($file_url, PATHINFO_EXTENSION);
+                            // Split multiple file URLs (assuming they are comma-separated)
+                            $files = explode(',', $fetch['file_post']);
 
-                            // If it's a PDF, show a preview or link
-                            if (strtolower($file_extension) == 'pdf') {
-                                echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>View PDF</a>";
+                            // Debugging: Check the split files array
+                            // echo "<pre>";
+                            // var_dump($files); // Output the array after splitting
+                            // echo "</pre>";
+                    
+                            // Separate images and other file types
+                            $imageFiles = [];
+                            $otherFiles = [];
+
+                            // Iterate over each file
+                            foreach ($files as $file_url) {
+                                $file_url = trim($file_url); // Remove any extra whitespace
+                                $file_extension = strtolower(pathinfo($file_url, PATHINFO_EXTENSION)); // Get file extension in lowercase
+                    
+                                // Categorize files based on their type
+                                if (in_array($file_extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                                    $imageFiles[] = $file_url;
+                                } else {
+                                    $otherFiles[] = $file_url;
+                                }
                             }
-                            // If it's an image, show an image preview
-                            elseif (in_array(strtolower($file_extension), ['jpg', 'jpeg', 'png', 'gif'])) {
-                                echo "<img src='$file_url' alt='Image' class='max-w-full h-auto'>";
+
+                            // Display images first
+                            if (!empty($imageFiles)) {
+                                echo "<div class='images'>";
+                                foreach ($imageFiles as $image_url) {
+                                    echo "<img src='$image_url' alt='Image' class='max-w-full h-auto mb-2 rounded shadow'><br>";
+                                }
+                                echo "</div>";
                             }
-                            // If it's a document file, show a download link
-                            elseif (in_array(strtolower($file_extension), ['doc', 'docx', 'xls', 'xlsx', 'txt'])) {
-                                echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>Download File</a>";
-                            } else {
-                                // Default handling for unknown file types
-                                echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>Download File</a>";
+
+                            // Display other file types below
+                    
+                            if (!empty($otherFiles)) {
+                                echo "<div class='files mb-6'>";
+                                echo '<div class="">View and Download links below: </div>';
+                                foreach ($otherFiles as $file_url) {
+                                    $file_extension = strtolower(pathinfo($file_url, PATHINFO_EXTENSION)); // Get file extension
+                                    $file_name = basename($file_url); // Extract the file name from the URL
+                    
+                                    // Display files based on their type
+                                    switch ($file_extension) {
+                                        case 'pdf':
+                                            // Display PDF file as a link
+                                            echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a><br>";
+                                            break;
+
+                                        case 'doc':
+                                        case 'docx':
+                                            // Display Word document as a link
+                                            echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a><br>";
+                                            break;
+
+                                        case 'xls':
+                                        case 'xlsx':
+                                            // Display Excel file as a link
+                                            echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a><br>";
+                                            break;
+
+                                        case 'txt':
+                                            // Display text file as a downloadable link
+                                            echo "<a href='$file_url' download class='text-blue-500 hover:text-blue-700'>$file_name</a><br>";
+                                            break;
+
+                                        default:
+                                            // Default for unknown file types
+                                            echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a><br>";
+                                            break;
+                                    }
+                                }
+                                echo "</div>";
                             }
+                        } else {
+                            echo "<p class='text-gray-500'>No files uploaded.</p>";
                         }
                         ?>
 

@@ -1,34 +1,31 @@
 <?php
-
+// Include database configuration and start session
 include('config.php');
 session_start();
 
-$Email = $_SESSION['iUserEmail'];
-$user_id = $_SESSION["user_id"];
-$firstname = $_SESSION["ifirstname"];
-$lastname = $_SESSION["ilastname"];
-$birth_month = $_SESSION["ibirth_month"];
-$birth_day = $_SESSION["ibirth_day"];
-$birth_year = $_SESSION["ibirth_year"];
-
-$res = mysqli_query($conn, "SELECT * FROM users WHERE iUserEmail ='$Email'");
-$row = mysqli_fetch_array($res);
-
-// Declare variables based on fetched data
-$fname = $row['ifirstname'];
-$lname = $row['ilastname'];
-$bm = $row['ibirth_month'];
-$bd = $row['ibirth_day'];
-$by = $row['ibirth_year'];
-$uemail = $row['iUserEmail'];
-
-// Will check if the user is logged in
+// Ensure the user is logged in
 if (empty($_SESSION['user_id'])) {
-  header("Location: login.php"); // Redirect user to login page
+  header("Location: login.php");
   exit();
 }
 
+// Retrieve session details
+$Email = $_SESSION['iUserEmail'];
+$user_id = $_SESSION['user_id'];
+
+// Fetch user details
+$res = mysqli_query($conn, "SELECT * FROM users WHERE iUserEmail = '$Email'");
+$row = mysqli_fetch_assoc($res);
+
+$fname = $row['ifirstname'];
+$lname = $row['ilastname'];
+$profile_picture = $row['profile_picture'];
+
+// Set default profile picture if none exists
+$defaultProfilePicture = 'path/to/default_profile_picture.jpg';
+$profilePictureUrl = !empty($profile_picture) ? $profile_picture : $defaultProfilePicture;
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

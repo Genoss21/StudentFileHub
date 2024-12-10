@@ -1,50 +1,63 @@
 <?php
 // Handle file upload and database insertion
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Check if a file is uploaded
-    if (isset($_FILES['file_post']) && $_FILES['file_post']['error'] == 0) {
-        $fileTmpPath = $_FILES['file_post']['tmp_name'];
-        $fileName = $_FILES['file_post']['name'];
-        $fileSize = $_FILES['file_post']['size'];
-        $fileType = $_FILES['file_post']['type'];
+    // Check if files are uploaded
+    if (isset($_FILES['file_post']) && !empty($_FILES['file_post']['name'][0])) {
+        $filePaths = []; // Array to store file paths
 
-        // Set the upload directory
-        $uploadDir = 'uploads/'; // Ensure this directory exists and is writable
-        $destFilePath = $uploadDir . basename($fileName);
+        // Loop through each uploaded file
+        foreach ($_FILES['file_post']['tmp_name'] as $index => $tmpFile) {
+            // Get the details of the uploaded file
+            $fileTmpPath = $_FILES['file_post']['tmp_name'][$index];
+            $fileName = $_FILES['file_post']['name'][$index];
+            $fileSize = $_FILES['file_post']['size'][$index];
+            $fileType = mime_content_type($fileTmpPath);
 
-        // Check if the file type is allowed
-        $allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword', 'text/plain'];
-        if (in_array($fileType, $allowedFileTypes)) {
-            // Move the file to the uploads directory
-            if (move_uploaded_file($fileTmpPath, $destFilePath)) {
-                // File upload successful, insert data into the database
-                require 'config.php'; // Database connection file
+            // Set the upload directory
+            $uploadDir = 'uploads/';
+            $destFilePath = $uploadDir . basename($fileName);
 
-                $userId = $_SESSION['user_id']; // Use the actual user ID from session
-                $postText = $_POST['text_post']; // Get post text from form input
-
-                // Insert post data into the database
-                $query = "INSERT INTO userposts (user_id, text_post, file_post) VALUES ('$userId', '$postText', '$destFilePath')";
-                $result = mysqli_query($conn, $query);
-
-                if ($result) {
-                    echo "Post created successfully!";
-                    header("Location: index.php"); // Redirect after successful post
-                    exit();
+            // Check if the file type is allowed
+            $allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword', 'text/plain'];
+            if (in_array($fileType, $allowedFileTypes)) {
+                // Move the file to the uploads directory
+                if (move_uploaded_file($fileTmpPath, $destFilePath)) {
+                    // Add the file path to the array
+                    $filePaths[] = $destFilePath;
                 } else {
-                    echo "Error inserting post into the database!";
+                    echo "There was an error moving the uploaded file!";
                 }
             } else {
-                echo "There was an error moving the uploaded file!";
+                echo "File type not allowed!";
             }
-        } else {
-            echo "File type not allowed!";
+        }
+
+        // If files were uploaded, insert the data into the database
+        if (!empty($filePaths)) {
+            require 'config.php'; // Database connection file
+
+            $userId = $_SESSION['user_id']; // Use the actual user ID from session
+            $postText = $_POST['text_post']; // Get post text from form input
+            $filePathsStr = implode(',', $filePaths); // Convert the array of file paths to a string
+
+            // Insert post data into the database
+            $query = "INSERT INTO userposts (user_id, text_post, file_post) VALUES ('$userId', '$postText', '$filePathsStr')";
+            $result = mysqli_query($conn, $query);
+
+            if ($result) {
+                echo "Post created successfully!";
+                header("Location: index.php"); // Redirect after successful post
+                exit();
+            } else {
+                echo "Error inserting post into the database!";
+            }
         }
     } else {
         echo "No file uploaded or an error occurred!";
     }
 }
 ?>
+
 
 <div id="defaultModal" tabindex="-1" aria-hidden="true"
     class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:-inset-0 h-[calc(100%-0rem)] max-h-full backdrop-blur-sm bg-white/10">
@@ -114,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="px-2">
                             <div class="flex items-center">
                                 <div class="flex flex-row flex-1 text-center p-1 m-2 order-1 space-y-2">
-                                    <input type="file" name="file_post" id="uploadpost2"
+                                    <input type="file" name="file_post[]" id="uploadpost2"
                                         onchange="previewFilesWithIcons(2)" multiple
                                         accept=".jpg, .jpeg, .png, .gif, .pdf, .doc, .docx, .xls, .xlsx" />
                                     <label for="uploadpost2" href="#"
