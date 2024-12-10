@@ -129,7 +129,7 @@
             ?>
 
             <!-- Popover php-->
-            <?php include 'popover.php' ?>
+            <?//php include 'popover.php' ?>
 
             <div>
                 <article class="hover:bg-gray-200 dark:hover:bg-gray-800 transition duration-350 ease-in-out">
@@ -180,33 +180,97 @@
                         </div>
                     </div>
 
-                    <div class="pl-16 overflow-none">
+                    <div class="px-16 overflow-none">
                         <p
-                            class="text-base width-auto font-medium text-gray-900 dark:text-white flex-shrink mx-2 fit-content break-words">
+                            class="text-base width-auto font-medium text-gray-900 dark:text-white flex-shrink mx-2 mb-2 fit-content break-words">
                             <?php echo $fetch['text_post']; ?>
                         </p>
 
                         <?php
-                        // Check if a file is uploaded
+                        // Debugging: Check the value of 'file_post'
+                        // echo "<pre>";
+                        // var_dump($fetch['file_post']); // Output the raw value of 'file_post'
+                        // echo "</pre>";
+                    
+                        // Check if files are uploaded
                         if (!empty($fetch['file_post'])) {
-                            $file_url = $fetch['file_post'];
-                            $file_extension = pathinfo($file_url, PATHINFO_EXTENSION);
+                            // Split multiple file URLs (assuming they are comma-separated)
+                            $files = explode(',', $fetch['file_post']);
 
-                            // If it's a PDF, show a preview or link
-                            if (strtolower($file_extension) == 'pdf') {
-                                echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>View PDF</a>";
+                            // Debugging: Check the split files array
+                            // echo "<pre>";
+                            // var_dump($files); // Output the array after splitting
+                            // echo "</pre>";
+                    
+                            // Separate images and other file types
+                            $imageFiles = [];
+                            $otherFiles = [];
+
+                            // Iterate over each file
+                            foreach ($files as $file_url) {
+                                $file_url = trim($file_url); // Remove any extra whitespace
+                                $file_extension = strtolower(pathinfo($file_url, PATHINFO_EXTENSION)); // Get file extension in lowercase
+                    
+                                // Categorize files based on their type
+                                if (in_array($file_extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                                    $imageFiles[] = $file_url;
+                                } else {
+                                    $otherFiles[] = $file_url;
+                                }
                             }
-                            // If it's an image, show an image preview
-                            elseif (in_array(strtolower($file_extension), ['jpg', 'jpeg', 'png', 'gif'])) {
-                                echo "<img src='$file_url' alt='Image' class='max-w-full h-auto'>";
+
+                            // Display images first
+                            if (!empty($imageFiles)) {
+                                echo "<div class='images'>";
+                                foreach ($imageFiles as $image_url) {
+                                    echo "<img src='$image_url' alt='Image' class='max-w-full h-auto mb-2 rounded shadow'><br>";
+                                }
+                                echo "</div>";
                             }
-                            // If it's a document file, show a download link
-                            elseif (in_array(strtolower($file_extension), ['doc', 'docx', 'xls', 'xlsx', 'txt'])) {
-                                echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>Download File</a>";
-                            } else {
-                                // Default handling for unknown file types
-                                echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>Download File</a>";
+
+                            // Display other file types below
+                    
+                            if (!empty($otherFiles)) {
+                                echo "<div class='files mb-6'>";
+                                echo '<div class="">View and Download links below: </div>';
+                                foreach ($otherFiles as $file_url) {
+                                    $file_extension = strtolower(pathinfo($file_url, PATHINFO_EXTENSION)); // Get file extension
+                                    $file_name = basename($file_url); // Extract the file name from the URL
+                    
+                                    // Display files based on their type
+                                    switch ($file_extension) {
+                                        case 'pdf':
+                                            // Display PDF file as a link
+                                            echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a><br>";
+                                            break;
+
+                                        case 'doc':
+                                        case 'docx':
+                                            // Display Word document as a link
+                                            echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a><br>";
+                                            break;
+
+                                        case 'xls':
+                                        case 'xlsx':
+                                            // Display Excel file as a link
+                                            echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a><br>";
+                                            break;
+
+                                        case 'txt':
+                                            // Display text file as a downloadable link
+                                            echo "<a href='$file_url' download class='text-blue-500 hover:text-blue-700'>$file_name</a><br>";
+                                            break;
+
+                                        default:
+                                            // Default for unknown file types
+                                            echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a><br>";
+                                            break;
+                                    }
+                                }
+                                echo "</div>";
                             }
+                        } else {
+                            echo "<p class='text-gray-500'>No files uploaded.</p>";
                         }
                         ?>
 
