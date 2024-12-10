@@ -408,93 +408,153 @@ if (isset($_GET['edit_post_id'])) {
                       </button>
                     </div>
 
-                    <!-- Edit Profile Form -->
-                    <form method="POST" action="update_profile.php" enctype="multipart/form-data">
-                      <div>
-                        <article
-                          class="hover:bg-gray-200 dark:hover:bg-gray-800 transition duration-350 ease-in-out rounded-lg">
-                          <!-- User Details -->
-                          <div class="grid p-4 pb-0">
-                            <div class="flex items-center">
-                              <!-- Profile Picture -->
-                              <div>
+                    <!-- Edit Post Form -->
+
+                    <div>
+                      <article
+                        class="hover:bg-gray-200 dark:hover:bg-gray-800 transition duration-350 ease-in-out rounded-lg">
+                        <!-- User Details -->
+                        <div class="grid p-4 pb-0">
+                          <div class="flex items-center">
+                            <!-- Profile Picture -->
+                            <div>
+                              <?php
+                              $defaultProfilePicture = 'Images/user1.jpg';
+                              $viewingUserId = $_GET['view_user_id'] ?? $_SESSION['user_id'] ?? null;
+
+                              if ($viewingUserId) {
+                                $sql = "SELECT profile_picture FROM users WHERE user_id = $viewingUserId";
+                                $result = mysqli_query($conn, $sql) or die("Query unsuccessful");
+                                $row = mysqli_fetch_assoc($result);
+                                $profilePictureUrl = !empty($row['profile_picture']) ? $row['profile_picture'] : $defaultProfilePicture;
+                              } else {
+                                $profilePictureUrl = $defaultProfilePicture;
+                              }
+
+                              echo '<img src="' . $profilePictureUrl . '" alt="Profile Picture" class="inline-block h-10 w-10 rounded-full" />';
+                              ?>
+                            </div>
+
+                            <!-- User Name and Details -->
+                            <div class="ml-3">
+                              <p class="w-[500px] text-base leading-6 font-medium text-gray-900 dark:text-gray-100">
                                 <?php
-                                $defaultProfilePicture = 'Images/user1.jpg';
-                                $viewingUserId = $_GET['view_user_id'] ?? $_SESSION['user_id'] ?? null;
-
                                 if ($viewingUserId) {
-                                  $sql = "SELECT profile_picture FROM users WHERE user_id = $viewingUserId";
+                                  $sql = "SELECT * FROM users WHERE user_id = $viewingUserId";
                                   $result = mysqli_query($conn, $sql) or die("Query unsuccessful");
-                                  $row = mysqli_fetch_assoc($result);
-                                  $profilePictureUrl = !empty($row['profile_picture']) ? $row['profile_picture'] : $defaultProfilePicture;
-                                } else {
-                                  $profilePictureUrl = $defaultProfilePicture;
-                                }
-
-                                echo '<img src="' . $profilePictureUrl . '" alt="Profile Picture" class="inline-block h-10 w-10 rounded-full" />';
-                                ?>
-                              </div>
-
-                              <!-- User Name and Details -->
-                              <div class="ml-3">
-                                <p class="w-[500px] text-base leading-6 font-medium text-gray-900 dark:text-gray-100">
-                                  <?php
-                                  if ($viewingUserId) {
-                                    $sql = "SELECT * FROM users WHERE user_id = $viewingUserId";
-                                    $result = mysqli_query($conn, $sql) or die("Query unsuccessful");
-                                    if (mysqli_num_rows($result) > 0) {
-                                      $row = mysqli_fetch_assoc($result);
-                                      $emailParts = explode('@', $row['iUserEmail']);
-                                      $username = $emailParts[0];
-                                      echo $row['ifirstname'] . ' ' . $row['ilastname'];
-                                      echo ' <span class="text-sm leading-5 font-medium text-gray-400">@' . $username . '</span>';
-                                      echo ' <span class="text-sm leading-5 font-medium text-gray-400">' . date('F j, Y g:i A') . '</span>';
-                                    }
-                                  } else {
-                                    $emailParts = explode('@', $_SESSION['iUserEmail']);
+                                  if (mysqli_num_rows($result) > 0) {
+                                    $row = mysqli_fetch_assoc($result);
+                                    $emailParts = explode('@', $row['iUserEmail']);
                                     $username = $emailParts[0];
-                                    echo $_SESSION['ifirstname'] . ' ' . $_SESSION['ilastname'];
+                                    echo $row['ifirstname'] . ' ' . $row['ilastname'];
                                     echo ' <span class="text-sm leading-5 font-medium text-gray-400">@' . $username . '</span>';
                                     echo ' <span class="text-sm leading-5 font-medium text-gray-400">' . date('F j, Y g:i A') . '</span>';
                                   }
-                                  ?>
-                                </p>
-                              </div>
+                                } else {
+                                  $emailParts = explode('@', $_SESSION['iUserEmail']);
+                                  $username = $emailParts[0];
+                                  echo $_SESSION['ifirstname'] . ' ' . $_SESSION['ilastname'];
+                                  echo ' <span class="text-sm leading-5 font-medium text-gray-400">@' . $username . '</span>';
+                                  echo ' <span class="text-sm leading-5 font-medium text-gray-400">' . date('F j, Y g:i A') . '</span>';
+                                }
+                                ?>
+                              </p>
                             </div>
                           </div>
+                        </div>
 
-                          <!-- Post Content -->
-                          <div class="pl-16 overflow-none">
-                            <p class="text-base font-medium text-gray-900 dark:text-gray-100 break-words">
-                              Sample Text Content
+                        <!-- Post Content -->
+                        <?php
+                        require 'config.php';
+
+                        // $_SESSION["iUserEmail"] contains the email of the logged-in user or the user being visited
+                        $userEmail = $_SESSION["iUserEmail"];
+
+                        // Retrieve user ID based on the user's email
+                        $userQuery = mysqli_query($conn, "SELECT user_id FROM `users` WHERE iUserEmail = '$userEmail'");
+                        $userData = mysqli_fetch_assoc($userQuery);
+                        $userId = $userData['user_id'];
+
+                        // Determine whose profile is being viewed
+                        $viewingUserId = null;
+                        if (isset($_GET['view_user_id'])) {
+                          $viewingUserId = $_GET['view_user_id'];
+                        }
+
+                        // Construct the query based on the viewing user
+                        if ($viewingUserId !== null) {
+                          // Viewing a specific user's profile
+                          $query = mysqli_query($conn, "SELECT * FROM `userposts` WHERE user_id = '$viewingUserId' ORDER BY post_id DESC");
+                        } else {
+                          // Viewing own profile
+                          $query = mysqli_query($conn, "SELECT * FROM `userposts` WHERE user_id = '$userId' ORDER BY post_id DESC");
+                        }
+
+                        // Check if any post is retrieved
+                        while ($post = mysqli_fetch_assoc($query)) {
+                          $postContent = !empty($post['post_content']) ? $post['post_content'] : 'No content available.';
+                          $documentUrl = !empty($post['document_url']) ? $post['document_url'] : null;
+                          $postId = $post['post_id'];
+
+                          // Display Post Content
+                          echo '<p class="text-base font-medium text-gray-900 dark:text-gray-100 break-words">';
+                          echo htmlspecialchars($postContent);
+                          echo '</p>';
+
+                          // Display Uploaded Document (if any)
+                          if ($documentUrl) {
+                            echo '<div class="pt-3">';
+                            echo '<p>Uploaded Document: ';
+                            echo '<a href="uploads/' . htmlspecialchars($documentUrl) . '" target="_blank">' . basename($documentUrl) . '</a>';
+                            echo '</p>';
+                            echo '</div>';
+                          } else {
+                            echo '<p>No document uploaded.</p>';
+                          }
+                        }
+                        ?>
+
+                        <!-- Display Post Content -->
+                        <p class="text-base font-medium text-gray-900 dark:text-gray-100 break-words">
+                          <?php echo htmlspecialchars($postContent); ?>
+                        </p>
+
+                        <!-- Display Uploaded Document -->
+                        <?php if ($documentUrl): ?>
+                          <div class="pt-3">
+                            <p>Uploaded Document:
+                              <a href="uploads/<?php echo htmlspecialchars($documentUrl); ?>"
+                                target="_blank"><?php echo basename($documentUrl); ?></a>
                             </p>
-                            <div id="uploaded_image" class="md:flex-shrink pr-6 pt-3">
-                              <img class="bg-cover bg-no-repeat bg-center rounded-lg w-full h-full"
-                                src="sample_image.jpg" alt="Uploaded Image" />
-                            </div>
-                            <!-- Action Buttons -->
-                            <div class="flex items-center py-4">
-                              <button
-                                class="flex-1 flex items-center text-xs text-gray-400 hover:text-blue-400 transition">
-                                <span class="material-symbols-rounded">add_comment</span> 12.3k
-                              </button>
-                              <button
-                                class="flex-1 flex items-center text-xs text-gray-400 hover:text-green-400 transition">
-                                <span class="material-symbols-rounded">reply</span> 14k
-                              </button>
-                              <button
-                                class="flex-1 flex items-center text-xs text-gray-400 hover:text-red-600 transition">
-                                <span class="material-symbols-rounded">favorite</span> 14k
-                              </button>
-                              <button
-                                class="flex-1 flex items-center text-xs text-gray-400 hover:text-blue-400 transition">
-                                <span class="material-symbols-rounded">upload</span>
-                              </button>
-                            </div>
                           </div>
-                        </article>
-                      </div>
-                    </form>
+                        <?php else: ?>
+                          <p>No document uploaded.</p>
+                        <?php endif; ?>
+
+
+                        <!-- Action Buttons (if needed) -->
+                        <div class="flex items-center justify-center py-4">
+                          <button
+                            class="flex-1 flex items-center justify-center text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+                            <span class="material-symbols-rounded">add_comment</span> 12.3k
+                          </button>
+                          <button
+                            class="flex-1 flex items-center justify-center text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+                            <span class="material-symbols-rounded">reply</span> 14k
+                          </button>
+                          <button
+                            class="flex-1 flex items-center justify-center text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+                            <span class="material-symbols-rounded">favorite</span> 14k
+                          </button>
+                          <button
+                            class="flex-1 flex items-center justify-center text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
+                            <span class="material-symbols-rounded">upload</span>
+                          </button>
+                        </div>
+
+
+                      </article>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -631,6 +691,8 @@ if (isset($_GET['edit_post_id'])) {
 
                       </div>
 
+                      <!--Display all post of the user -->
+
                       <div class="px-16 overflow-none">
                         <p
                           class="text-base width-auto font-medium text-gray-900 dark:text-gray-100 flex-shrink mx-2 mb-2 fit-content break-words">
@@ -639,89 +701,56 @@ if (isset($_GET['edit_post_id'])) {
 
                         <!-- Display images or files attached to the post -->
                         <?php
-                        if (!empty($fetch['file_post'])) {
-                          $files = explode(',', $fetch['file_post']); // Split file URLs
-                          $imageFiles = [];
-                          $otherFiles = [];
 
-                          // Separate image files and other files
-                          foreach ($files as $file_url) {
-                            $file_url = trim($file_url);
-                            $file_extension = strtolower(pathinfo($file_url, PATHINFO_EXTENSION));
+                        // Check if the 'file_post' exists in the session
+                        if (isset($_SESSION['files']) && !empty($_SESSION['files'])) {
+                          $files = $_SESSION['files']; // Get the stored files
+                        } else {
+                          // Fallback: fetch the files from the database (or any other source)
+                          $files = explode(',', $fetch['file_post']); // Split file URLs from the database
+                          $_SESSION['files'] = $files; // Store the files in session for easy access
+                        }
 
-                            if (in_array($file_extension, ['jpg', 'jpeg', 'png', 'gif'])) {
-                              $imageFiles[] = $file_url;
-                            } else {
-                              $otherFiles[] = $file_url;
-                            }
+                        $imageFiles = [];
+                        $otherFiles = [];
+
+                        // Separate image files and other files
+                        foreach ($files as $file_url) {
+                          $file_url = trim($file_url);
+                          $file_extension = strtolower(pathinfo($file_url, PATHINFO_EXTENSION));
+
+                          if (in_array($file_extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                            $imageFiles[] = $file_url;
+                          } else {
+                            $otherFiles[] = $file_url;
                           }
+                        }
 
-                          // Display images first
-                          if (!empty($imageFiles)) {
-                            echo "<div class='images'>";
-                            foreach ($imageFiles as $image_url) {
-                              echo "<img src='$image_url' alt='Image' class='max-w-full h-auto mb-2 rounded shadow'><br>";
-                            }
+                        // Display images first
+                        if (!empty($imageFiles)) {
+                          echo "<div class='images'>";
+                          foreach ($imageFiles as $image_url) {
+                            echo "<img src='$image_url' alt='Image' class='max-w-full h-auto mb-2 rounded shadow'><br>";
+                          }
+                          echo "</div>";
+                        }
+
+                        // Display other file types
+                        if (!empty($otherFiles)) {
+                          echo "<div class='files mb-6'>";
+                          foreach ($otherFiles as $file_url) {
+                            $file_name = basename($file_url); // Extract the file name from the URL
+                            echo "<div class='file-item mb-2 flex items-center justify-between'>";
+                            echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a>";
+                            echo "<button class='rename-btn text-xs text-gray-500 hover:text-blue-400' data-file-url='$file_url' data-file-name='$file_name'>Rename</button>";
                             echo "</div>";
                           }
-
-                          // Display other file types
-                          if (!empty($otherFiles)) {
-                            echo "<div class='files mb-6'>";
-                            foreach ($otherFiles as $file_url) {
-                              $file_name = basename($file_url); // Extract the file name from the URL
-                              echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a><br>";
-                            }
-                            echo "</div>";
-                          }
+                          echo "</div>";
                         }
                         ?>
 
-                        <div class="flex items-center py-4">
-                          <?php if ($isCurrentUserPost) { ?>
-                            <button
-                              class="flex-1 flex items-center text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-                              <span class="material-symbols-rounded">add_comment</span>
-                              12.3 k
-                            </button>
-                            <button
-                              class="flex-1 flex items-center text-xs text-gray-400 hover:text-green-400 transition duration-350 ease-in-out">
-                              <span class="material-symbols-rounded">reply</span>
-                              14 k
-                            </button>
-                            <button
-                              class="flex-1 flex items-center text-xs text-gray-400 hover:text-red-600 transition duration-350 ease-in-out">
-                              <span class="material-symbols-rounded">favorite</span>
-                              14 k
-                            </button>
-                            <button
-                              class="flex-1 flex items-center text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-                              <span class="absolute material-symbols-rounded">upload</span>
-                            </button>
-                          <?php } else { ?>
-                            <!-- Display buttons for other users' posts -->
-                            <button
-                              class="flex-1 flex items-center text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-                              <span class="material-symbols-rounded">add_comment</span>
-                              12.3 k
-                            </button>
-                            <button
-                              class="flex-1 flex items-center text-xs text-gray-400 hover:text-green-400 transition duration-350 ease-in-out">
-                              <span class="material-symbols-rounded">reply</span>
-                              14 k
-                            </button>
-                            <button
-                              class="flex-1 flex items-center text-xs text-gray-400 hover:text-red-600 transition duration-350 ease-in-out">
-                              <span class="material-symbols-rounded">favorite</span>
-                              14 k
-                            </button>
-                            <button
-                              class="flex-1 flex items-center text-xs text-gray-400 hover:text-blue-400 transition duration-350 ease-in-out">
-                              <span class="absolute material-symbols-rounded">upload</span>
-                            </button>
-                          <?php } ?>
-                        </div>
                       </div>
+
                       <hr class="border-gray-300 dark:border-gray-400" />
                     </article>
                   </div>
@@ -802,6 +831,69 @@ if (isset($_GET['edit_post_id'])) {
         imagePreviewDiv.style.display = "block";
       }
     }
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const renameButtons = document.querySelectorAll('.rename-btn');
+
+      renameButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          const fileUrl = this.getAttribute('data-file-url');
+          const fileName = this.getAttribute('data-file-name');
+
+          // Create the rename input field with styles similar to textarea
+          const inputField = document.createElement('input');
+          inputField.type = 'text';
+          inputField.value = fileName;
+          inputField.classList.add('bg-transparent', 'font-medium', 'text-lg', 'w-full', 'text-ellipsis',
+            'border-0', 'focus:outline-none', 'form-control', 'text-gray-800', 'dark:text-gray-100', 'focus:ring-0', 'h-12', 'mr-2');
+
+          // Create a save button
+          const saveButton = document.createElement('button');
+          saveButton.textContent = 'Save';
+          saveButton.classList.add('text-xs', 'text-blue-500', 'hover:text-blue-700', 'focus:outline-none', 'focus:ring-0');
+
+          // Create a container for input and button
+          const inputContainer = document.createElement('div');
+          inputContainer.classList.add('flex', 'items-center');
+
+          // Append input and button to the container
+          inputContainer.appendChild(inputField);
+          inputContainer.appendChild(saveButton);
+
+          // Replace the rename button with input field and save button
+          this.parentElement.replaceChild(inputContainer, this);
+
+          // Handle the save functionality
+          saveButton.addEventListener('click', function () {
+            const newName = inputField.value;
+            if (newName && newName !== fileName) {
+              // Send the new name to the server using AJAX
+              const xhr = new XMLHttpRequest();
+              xhr.open('POST', 'rename_file.php', true);
+              xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+              xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                  const response = xhr.responseText;
+
+                  if (response === 'success') {
+                    // Update the file name in the UI
+                    const fileItem = button.closest('.file-item');
+                    fileItem.querySelector('a').textContent = newName; // Update the link text
+                    fileItem.querySelector('a').setAttribute('href', fileUrl.replace(fileName, newName)); // Update the file URL
+                    fileItem.querySelector('.rename-btn').textContent = 'Rename'; // Restore the rename button
+                  } else {
+                    alert('Error renaming the file on the server.');
+                  }
+                }
+              };
+              xhr.send('file_url=' + encodeURIComponent(fileUrl) + '&new_name=' + encodeURIComponent(newName));
+            }
+          });
+        });
+      });
+    });
   </script>
 
   <!--Disable scroll bar default-->
