@@ -20,6 +20,8 @@ if (isset($_POST['submit'])) {
     $iUserEmail = $_POST['iUserEmail'];
     $iUserPassword = $_POST['iUserPassword'];
 
+    $hashPassword = password_hash($iUserPassword, PASSWORD_DEFAULT);
+
     // Check if the iUserEmail already exists in the database
     $checkEmailQuery = "SELECT * FROM users WHERE iUserEmail = '$iUserEmail'";
     $emailResult = mysqli_query($conn, $checkEmailQuery);
@@ -61,7 +63,7 @@ if (isset($_POST['submit'])) {
     } else {
       $date_created = date("Y-m-d H:i:s"); // Current date and time
       $sql = "INSERT INTO users(ifirstname, ilastname, ibirth_month, ibirth_day, ibirth_year, iUserEmail, iUserPassword, date_created) 
-            VALUES('$ifirstname', '$ilastname', '$ibirth_month', '$ibirth_day', '$ibirth_year', '$iUserEmail', '$iUserPassword', '$date_created')";
+            VALUES('$ifirstname', '$ilastname', '$ibirth_month', '$ibirth_day', '$ibirth_year', '$iUserEmail', '$hashPassword', '$date_created')";
       $result = mysqli_query($conn, $sql) or die("query unsuccessful");
 
       // Set a default profile picture for the new user

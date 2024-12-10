@@ -10,61 +10,72 @@ if (isset($_POST['signin'])) {
   $iUserEmail = $_POST['iUserEmail'];
   $iUserPassword = $_POST['iUserPassword'];
 
-  $select = mysqli_query($conn, "SELECT * FROM users WHERE iUserEmail ='$iUserEmail' AND iUserPassword ='$iUserPassword'");
-  $row = mysqli_fetch_array($select);
-
-  if (is_array($row)) {
-    $_SESSION["iUserEmail"] = $row['iUserEmail'];
-    $_SESSION["iUserPassword"] = $row['iUserPassword'];
-    //Data below a are need to use to other pages
-    $_SESSION["user_id"] = $row['user_id'];
-    $_SESSION["ifirstname"] = $row['ifirstname'];
-    $_SESSION["ilastname"] = $row['ilastname'];
-    $_SESSION["ibirth_month"] = $row['ibirth_month'];
-    $_SESSION["ibirth_day"] = $row['ibirth_day'];
-    $_SESSION["ibirth_year"] = $row['ibirth_year'];
-    $_SESSION["date_created"] = $row['date_created'];
-    $_SESSION["profile_picture"] = $row['profile_picture'];
-    $_SESSION["background_picture"] = $row['background_picture'];
-    $_SESSION["default_background_picture"] = $row['default_background_picture'];
-    $_SESSION["bio"] = $row['bio'];
-    $_SESSION["location"] = $row['location'];
-    $_SESSION["website"] = $row['website'];
-
-  } else {
-    $promtMessage = '<div
-  id="alert-5"
-  class="flex items-center p-4 rounded-lg bg-red-200 mb-5"
-  role="alert"
->
-  <span class="material-symbols-rounded text-red-500"> priority_high </span>
-  <div class="mx-3 text-sm font-medium text-red-500">
-    Incorect Username or password.
-  </div>
-  <button
-    type="button"
-    class="ml-auto -mx-1.5 -my-1.5 bg-indigo-200 text-gray-500 rounded-lg focus:ring-2 focus:ring-gray-400 p-1.5 hover:bg-gray-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800  dark:hover:bg-gray-700 dark:hover:text-white"
-    data-dismiss-target="#alert-5"
-    aria-label="Close"
-  >
-    <span class="sr-only">Dismiss</span>
-    <svg
-      class="w-3 h-3"
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 14 14"
+  $hashQuery = mysqli_query($conn, "SELECT * FROM users WHERE iUserEmail ='$iUserEmail'");
+  if($hashQuery && mysqli_num_rows($hashQuery) > 0){
+    $row = mysqli_fetch_assoc($hashQuery);
+    $hashedPassword = $row['iUserPassword']; // Extract the password
+    $verify = password_verify($iUserPassword, $hashedPassword);
+    
+    if($verify){
+      $select = mysqli_query($conn, "SELECT * FROM users WHERE iUserEmail ='$iUserEmail'");
+      $row = mysqli_fetch_array($select);
+    
+      if (is_array($row)) {
+        $_SESSION["iUserEmail"] = $row['iUserEmail'];
+        $_SESSION["iUserPassword"] = $row['iUserPassword'];
+        //Data below a are need to use to other pages
+        $_SESSION["user_id"] = $row['user_id'];
+        $_SESSION["ifirstname"] = $row['ifirstname'];
+        $_SESSION["ilastname"] = $row['ilastname'];
+        $_SESSION["ibirth_month"] = $row['ibirth_month'];
+        $_SESSION["ibirth_day"] = $row['ibirth_day'];
+        $_SESSION["ibirth_year"] = $row['ibirth_year'];
+        $_SESSION["date_created"] = $row['date_created'];
+        $_SESSION["profile_picture"] = $row['profile_picture'];
+        $_SESSION["background_picture"] = $row['background_picture'];
+        $_SESSION["default_background_picture"] = $row['default_background_picture'];
+        $_SESSION["bio"] = $row['bio'];
+        $_SESSION["location"] = $row['location'];
+        $_SESSION["website"] = $row['website'];
+    
+      } else {
+        $promtMessage = '<div
+      id="alert-5"
+      class="flex items-center p-4 rounded-lg bg-red-200 mb-5"
+      role="alert"
     >
-      <path
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-      />
-    </svg>
-  </button>
-</div>';
+      <span class="material-symbols-rounded text-red-500"> priority_high </span>
+      <div class="mx-3 text-sm font-medium text-red-500">
+        Incorect Username or password.
+      </div>
+      <button
+        type="button"
+        class="ml-auto -mx-1.5 -my-1.5 bg-indigo-200 text-gray-500 rounded-lg focus:ring-2 focus:ring-gray-400 p-1.5 hover:bg-gray-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800  dark:hover:bg-gray-700 dark:hover:text-white"
+        data-dismiss-target="#alert-5"
+        aria-label="Close"
+      >
+        <span class="sr-only">Dismiss</span>
+        <svg
+          class="w-3 h-3"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 14 14"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+          />
+        </svg>
+      </button>
+    </div>';
+      }
+    }else{
+      $promtMessage = '<div class="text-red-600">Invalid email or password.</div>';
+    }
   }
 }
 
