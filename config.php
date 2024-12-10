@@ -4,11 +4,8 @@ $username = "root";
 $password = "";
 $database = "odms_database";
 
-// Create a connection
-$conn = mysqli_connect($servername, $username, $password, $database);
-
-// Check the connection
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
+$conn = new mysqli('localhost', 'root', '', 'odms_database');
+if ($conn->connect_error) {
+    die('Database connection failed: ' . $conn->connect_error);
 }
 ?>
