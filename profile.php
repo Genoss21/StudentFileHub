@@ -230,11 +230,15 @@ if (isset($_GET['edit_post_id'])) {
                       <p class="text-sm leading-5 font-medium text-gray-600">
                         <?php
                         if (isset($_GET['view_user_id'])) {
-                          // Display email for the user being viewed
-                          echo $row['iUserEmail'];
+                          // Extract the username from the email for the user being viewed
+                          $email = $row['iUserEmail'];
                         } else {
-                          echo $_SESSION['iUserEmail'];
+                          $email = $_SESSION['iUserEmail'];
                         }
+
+                        // Extract the part before the "@" and prepend "@"
+                        $username = explode('@', $email)[0];
+                        echo '@' . $username;
                         ?>
                       </p>
 
@@ -696,60 +700,84 @@ if (isset($_GET['edit_post_id'])) {
                       <div class="px-16 overflow-none">
                         <p
                           class="text-base width-auto font-medium text-gray-900 dark:text-gray-100 flex-shrink mx-2 mb-2 fit-content break-words">
-                          <?php echo $fetch['text_post'] ?>
+                          <?php echo $fetch['text_post']; ?>
                         </p>
 
                         <!-- Display images or files attached to the post -->
                         <?php
+                        if (!empty($fetch['file_post'])) {
+                          // Split file URLs and process them into an array
+                          $files = explode(',', $fetch['file_post']); // Split file URLs
+                          $imageFiles = [];
+                          $otherFiles = [];
 
-                        // Check if the 'file_post' exists in the session
-                        if (isset($_SESSION['files']) && !empty($_SESSION['files'])) {
-                          $files = $_SESSION['files']; // Get the stored files
-                        } else {
-                          // Fallback: fetch the files from the database (or any other source)
-                          $files = explode(',', $fetch['file_post']); // Split file URLs from the database
-                          $_SESSION['files'] = $files; // Store the files in session for easy access
-                        }
+                          // Debugging: Check the contents of the $files array
+                          // echo "<pre>";
+                          // var_dump($files); // Output the array after splitting
+                          // echo "</pre>";
+                      
+                          // Separate image files and other files
+                          foreach ($files as $file_url) {
+                            $file_url = trim($file_url);
+                            $file_extension = strtolower(pathinfo($file_url, PATHINFO_EXTENSION));
 
-                        $imageFiles = [];
-                        $otherFiles = [];
-
-                        // Separate image files and other files
-                        foreach ($files as $file_url) {
-                          $file_url = trim($file_url);
-                          $file_extension = strtolower(pathinfo($file_url, PATHINFO_EXTENSION));
-
-                          if (in_array($file_extension, ['jpg', 'jpeg', 'png', 'gif'])) {
-                            $imageFiles[] = $file_url;
-                          } else {
-                            $otherFiles[] = $file_url;
+                            // Debugging: Check the file extension and URL for each file
+                            // echo "<pre>";
+                            // var_dump($file_url); // Output the file URL being processed
+                            // var_dump($file_extension); // Output the file extension being checked
+                            // echo "</pre>";
+                      
+                            // Check if the file is an image or another type
+                            if (in_array($file_extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                              $imageFiles[] = $file_url;
+                            } else {
+                              $otherFiles[] = $file_url;
+                            }
                           }
-                        }
 
-                        // Display images first
-                        if (!empty($imageFiles)) {
-                          echo "<div class='images'>";
-                          foreach ($imageFiles as $image_url) {
-                            echo "<img src='$image_url' alt='Image' class='max-w-full h-auto mb-2 rounded shadow'><br>";
-                          }
-                          echo "</div>";
-                        }
-
-                        // Display other file types
-                        if (!empty($otherFiles)) {
-                          echo "<div class='files mb-6'>";
-                          foreach ($otherFiles as $file_url) {
-                            $file_name = basename($file_url); // Extract the file name from the URL
-                            echo "<div class='file-item mb-2 flex items-center justify-between'>";
-                            echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a>";
-                            echo "<button class='rename-btn text-xs text-gray-500 hover:text-blue-400' data-file-url='$file_url' data-file-name='$file_name'>Rename</button>";
+                          // Debugging: Check the categorized image and other files
+                          // echo "<pre>";
+                          // echo "Image Files: ";
+                          // var_dump($imageFiles);
+                          // echo "Other Files: ";
+                          // var_dump($otherFiles);
+                          // echo "</pre>";
+                      
+                          // Display images first (only if there are image files)
+                          if (!empty($imageFiles)) {
+                            echo "<div class='images'>";
+                            foreach ($imageFiles as $image_url) {
+                              echo "<img src='$image_url' alt='Image' class='max-w-full h-auto mb-2 rounded shadow'><br>";
+                            }
                             echo "</div>";
                           }
-                          echo "</div>";
+
+                          // Display other file types (only if there are non-image files)
+                          if (!empty($otherFiles)) {
+                            echo "<div class='files mb-6'>";
+                            foreach ($otherFiles as $file_url) {
+                              $file_name = basename($file_url); // Extract the file name from the URL
+                              echo "<div class='file-item mb-2 flex items-center justify-between'>";
+                              echo "<a href='$file_url' target='_blank' class='text-blue-500 hover:text-blue-700'>$file_name</a>";
+
+                              // Container for buttons aligned to the right
+                              echo "<div class='flex ml-auto'>";
+
+                              // Rename Button
+                              echo "<button class='rename-btn text-xs text-gray-500 hover:text-blue-400 mr-2' data-file-url='$file_url' data-file-name='$file_name'>Rename</button>";
+
+                              // Delete Button
+                              echo "<button class='delete-btn text-xs text-gray-500 hover:text-red-500' data-file-url='$file_url' data-file-name='$file_name'>Delete</button>";
+
+                              echo "</div>"; // Close the button container
+                              echo "</div>"; // Close file item container
+                            }
+                            echo "</div>"; // Close files div
+                          }
                         }
                         ?>
-
                       </div>
+
 
                       <hr class="border-gray-300 dark:border-gray-400" />
                     </article>
@@ -813,7 +841,7 @@ if (isset($_GET['edit_post_id'])) {
   <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"></script>
 
-  <!--Image preview-->
+  <!--File preview-->
   <script>
     function previewFile(formIndex) {
       const fileInput = document.getElementById(`uploadpost${formIndex}`);
@@ -836,55 +864,52 @@ if (isset($_GET['edit_post_id'])) {
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const renameButtons = document.querySelectorAll('.rename-btn');
+      const deleteButtons = document.querySelectorAll('.delete-btn');  // Target delete buttons
 
+      // Handle rename button click
       renameButtons.forEach(button => {
         button.addEventListener('click', function () {
           const fileUrl = this.getAttribute('data-file-url');
           const fileName = this.getAttribute('data-file-name');
 
-          // Create the rename input field with styles similar to textarea
+          // Create the rename input field with styles
           const inputField = document.createElement('input');
           inputField.type = 'text';
           inputField.value = fileName;
           inputField.classList.add('bg-transparent', 'font-medium', 'text-lg', 'w-full', 'text-ellipsis',
-            'border-0', 'focus:outline-none', 'form-control', 'text-gray-800', 'dark:text-gray-100', 'focus:ring-0', 'h-12', 'mr-2');
+            'border-0', 'focus:outline-none', 'form-control', 'text-gray-800', 'dark:text-gray-100', 'focus:ring-0',
+            'h-12', 'mr-2'); // Input field styling
 
           // Create a save button
           const saveButton = document.createElement('button');
           saveButton.textContent = 'Save';
-          saveButton.classList.add('text-xs', 'text-blue-500', 'hover:text-blue-700', 'focus:outline-none', 'focus:ring-0');
+          saveButton.classList.add('text-xs', 'text-blue-500', 'hover:text-blue-700', 'focus:outline-none', 'focus:ring-0', 'mr-2');
 
-          // Create a container for input and button
+          // Container for input and button
           const inputContainer = document.createElement('div');
           inputContainer.classList.add('flex', 'items-center');
 
-          // Append input and button to the container
+          // Append input and button to container
           inputContainer.appendChild(inputField);
           inputContainer.appendChild(saveButton);
 
-          // Replace the rename button with input field and save button
+          // Replace the rename button with input and save button
           this.parentElement.replaceChild(inputContainer, this);
 
-          // Handle the save functionality
+          // Handle save button click
           saveButton.addEventListener('click', function () {
             const newName = inputField.value;
             if (newName && newName !== fileName) {
-              // Send the new name to the server using AJAX
               const xhr = new XMLHttpRequest();
               xhr.open('POST', 'rename_file.php', true);
               xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
               xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                  const response = xhr.responseText;
-
-                  if (response === 'success') {
-                    // Update the file name in the UI
-                    const fileItem = button.closest('.file-item');
-                    fileItem.querySelector('a').textContent = newName; // Update the link text
-                    fileItem.querySelector('a').setAttribute('href', fileUrl.replace(fileName, newName)); // Update the file URL
-                    fileItem.querySelector('.rename-btn').textContent = 'Rename'; // Restore the rename button
+                  if (xhr.responseText === 'success') {
+                    alert('File renamed successfully!');
+                    location.reload(); // Reload page to show new name
                   } else {
-                    alert('Error renaming the file on the server.');
+                    alert('Error renaming file: ' + xhr.responseText);
                   }
                 }
               };
@@ -893,8 +918,36 @@ if (isset($_GET['edit_post_id'])) {
           });
         });
       });
+
+      // Handle delete button click
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          const fileUrl = this.getAttribute('data-file-url');
+          const fileName = this.getAttribute('data-file-name');
+
+          // Confirm delete action
+          if (confirm(`Are you sure you want to delete the file: ${fileName}?`)) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'delete_file.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function () {
+              if (xhr.readyState == 4 && xhr.status == 200) {
+                if (xhr.responseText === 'success') {
+                  alert('File deleted successfully!');
+                  location.reload(); // Reload page to remove the file from the list
+                } else {
+                  alert('Error deleting file: ' + xhr.responseText);
+                }
+              }
+            };
+            xhr.send('file_url=' + encodeURIComponent(fileUrl));
+          }
+        });
+      });
     });
   </script>
+
+
 
   <!--Disable scroll bar default-->
   <style>
