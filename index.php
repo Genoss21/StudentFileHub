@@ -258,6 +258,70 @@ $profilePictureUrl = !empty($profile_picture) ? $profile_picture : $defaultProfi
     });
   </script>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const renameButtons = document.querySelectorAll('.rename-btn');
+
+      renameButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          const fileUrl = this.getAttribute('data-file-url');
+          const fileName = this.getAttribute('data-file-name');
+
+          // Create the rename input field with styles similar to textarea
+          const inputField = document.createElement('input');
+          inputField.type = 'text';
+          inputField.value = fileName;
+          inputField.classList.add('bg-transparent', 'font-medium', 'text-lg', 'w-full', 'text-ellipsis',
+            'border-0', 'focus:outline-none', 'form-control', 'text-gray-800', 'dark:text-gray-100', 'focus:ring-0', 'h-12', 'mr-2');
+
+          // Create a save button
+          const saveButton = document.createElement('button');
+          saveButton.textContent = 'Save';
+          saveButton.classList.add('text-xs', 'text-blue-500', 'hover:text-blue-700', 'focus:outline-none', 'focus:ring-0');
+
+          // Create a container for input and button
+          const inputContainer = document.createElement('div');
+          inputContainer.classList.add('flex', 'items-center');
+
+          // Append input and button to the container
+          inputContainer.appendChild(inputField);
+          inputContainer.appendChild(saveButton);
+
+          // Replace the rename button with input field and save button
+          this.parentElement.replaceChild(inputContainer, this);
+
+          // Handle the save functionality
+          saveButton.addEventListener('click', function () {
+            const newName = inputField.value;
+            if (newName && newName !== fileName) {
+              // Send the new name to the server using AJAX
+              const xhr = new XMLHttpRequest();
+              xhr.open('POST', 'rename_file.php', true);
+              xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+              xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                  const response = xhr.responseText;
+
+                  if (response === 'success') {
+                    // Update the file name in the UI
+                    const fileItem = button.closest('.file-item');
+                    fileItem.querySelector('a').textContent = newName; // Update the link text
+                    fileItem.querySelector('a').setAttribute('href', fileUrl.replace(fileName, newName)); // Update the file URL
+                    fileItem.querySelector('.rename-btn').textContent = 'Rename'; // Restore the rename button
+                  } else {
+                    alert('Error renaming the file on the server.');
+                  }
+                }
+              };
+              xhr.send('file_url=' + encodeURIComponent(fileUrl) + '&new_name=' + encodeURIComponent(newName));
+            }
+          });
+        });
+      });
+    });
+  </script>
+
+
   <!--Toast-->
 
   <!--Disable scroll bar default-->

@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <div class="flex flex-row flex-1 text-center p-1 m-2 order-1 space-y-2">
                                     <input type="file" name="file_post[]" id="uploadpost2"
                                         onchange="previewFilesWithIcons(2)" multiple
-                                        accept=".jpg, .jpeg, .png, .gif, .pdf, .doc, .docx, .xls, .xlsx" />
+                                        accept=".jpg, .jpeg, .png, .gif, .pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx" />
                                     <label for="uploadpost2" href="#"
                                         class="w-[160px] mt-1 ml-11 group flex items-center text-blue-400 px-6 py-2 text-base leading-6 font-medium rounded-full hover:bg-indigo-700 hover:text-blue-300">
                                         <div class="flex flex-row space-x-2 justify-center">
