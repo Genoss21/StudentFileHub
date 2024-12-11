@@ -947,8 +947,6 @@ if (isset($_GET['edit_post_id'])) {
     });
   </script>
 
-
-
   <!--Disable scroll bar default-->
   <style>
     .overflow-y-auto::-webkit-scrollbar,

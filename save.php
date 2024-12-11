@@ -2,6 +2,12 @@
 include('config.php');
 session_start();
 
+require 'vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+
+
 // Check if the user is logged in
 if (empty($_SESSION['user_id'])) {
     header("Location: login.php"); // Redirect to login page if not logged in
@@ -94,6 +100,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         if (move_uploaded_file($fileTmpPath, $destFilePath)) {
                             // Add the file path to the array
                             $filePaths[] = $destFilePath;
+                            try {
+                                $mail = new PHPMailer(true);
+                                $mail->isSMTP();
+                                $mail->Host = 'smtp.gmail.com';
+                                $mail->SMTPAuth = true;
+                                $mail->Username = 'aurieljames11@gmail.com';
+                                $mail->Password = 'crloyenfawqakccu';
+                                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                                $mail->Port = 465;
+                                $mail->setFrom('noreply@gmail.com', 'StudentHub'); // sender email
+                                $mail->addAddress('jerome123.tobes@gmail.com', 'Fritz'); // receiver email
+                                $mail->Subject = 'Test Email from PHPMailer';
+                                $mail->Body = 'This is a test email sent from localhost using PHPMailer and Gmail SMTP.';
+                                $mail->isHTML(true);
+                                $mail->send();
+                            } catch (Exception $e) {
+                                $promtMessage = '<div class="text-red-600">Mailer Error: ' . $mail->ErrorInfo . '</div>';
+                            }
                         } else {
                             $_SESSION['message'] = "There was an error moving one of the uploaded files!";
                         }

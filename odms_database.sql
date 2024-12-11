@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 10, 2024 at 07:33 PM
+-- Generation Time: Dec 11, 2024 at 01:01 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -36,13 +36,6 @@ CREATE TABLE `userposts` (
   `user_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `userposts`
---
-
-INSERT INTO `userposts` (`post_id`, `post_created`, `time_posted`, `file_post`, `text_post`, `user_id`) VALUES
-(286, '2024-12-11', '02:33:28', 'uploads/fritzjerometobes/Circle - Copy (2).docx,uploads/fritzjerometobes/Deadpool mask - Copy (2).pdf,uploads/fritzjerometobes/firewatch-pc-game-1920x1080.jpg,uploads/fritzjerometobes/Spring Boot - Learning Roadmap - Copy (2).xlsx', '4 files', 20);
-
 -- --------------------------------------------------------
 
 --
@@ -63,15 +56,16 @@ CREATE TABLE `users` (
   `background_picture` varchar(255) NOT NULL DEFAULT 'Images/tokyo.jpg',
   `bio` varchar(255) DEFAULT NULL,
   `location` varchar(100) DEFAULT NULL,
-  `website` varchar(255) DEFAULT NULL
+  `website` varchar(255) DEFAULT NULL,
+  `role` enum('admin','user') NOT NULL DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `ifirstname`, `ilastname`, `ibirth_month`, `ibirth_day`, `ibirth_year`, `iUserEmail`, `iUserPassword`, `profile_picture`, `date_created`, `background_picture`, `bio`, `location`, `website`) VALUES
-(20, 'Fritz jerome', 'Tobes', 'May', 21, 2000, 'ADMIN_1@gmail.com', '$2y$10$6VNmx/UcWM.nLri5YIxy9ueCo89whUP.C.rMie5ZqMGUI7sqcsMUa', 'Images/Fritz.jpg', '2024-12-10', 'Images/bryan-natanael-JJHudePsxcA-unsplash.jpg', NULL, NULL, NULL);
+INSERT INTO `users` (`user_id`, `ifirstname`, `ilastname`, `ibirth_month`, `ibirth_day`, `ibirth_year`, `iUserEmail`, `iUserPassword`, `profile_picture`, `date_created`, `background_picture`, `bio`, `location`, `website`, `role`) VALUES
+(20, 'Fritz jerome', 'Tobes', 'May', 21, 2000, 'ADMIN_1@gmail.com', '$2y$10$6VNmx/UcWM.nLri5YIxy9ueCo89whUP.C.rMie5ZqMGUI7sqcsMUa', 'Images/Fritz.jpg', '2024-12-10', 'Images/bryan-natanael-JJHudePsxcA-unsplash.jpg', NULL, NULL, NULL, 'user');
 
 --
 -- Indexes for dumped tables
@@ -98,7 +92,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `userposts`
 --
 ALTER TABLE `userposts`
-  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=287;
+  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=300;
 
 --
 -- AUTO_INCREMENT for table `users`
