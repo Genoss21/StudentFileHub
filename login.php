@@ -1,4 +1,9 @@
 <?php
+require 'vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 
 session_start();
 include 'config.php';
@@ -11,15 +16,15 @@ if (isset($_POST['signin'])) {
   $iUserPassword = $_POST['iUserPassword'];
 
   $hashQuery = mysqli_query($conn, "SELECT * FROM users WHERE iUserEmail ='$iUserEmail'");
-  if($hashQuery && mysqli_num_rows($hashQuery) > 0){
+  if ($hashQuery && mysqli_num_rows($hashQuery) > 0) {
     $row = mysqli_fetch_assoc($hashQuery);
     $hashedPassword = $row['iUserPassword']; // Extract the password
     $verify = password_verify($iUserPassword, $hashedPassword);
-    
-    if($verify){
+
+    if ($verify) {
       $select = mysqli_query($conn, "SELECT * FROM users WHERE iUserEmail ='$iUserEmail'");
       $row = mysqli_fetch_array($select);
-    
+
       if (is_array($row)) {
         $_SESSION["iUserEmail"] = $row['iUserEmail'];
         $_SESSION["iUserPassword"] = $row['iUserPassword'];
@@ -37,7 +42,26 @@ if (isset($_POST['signin'])) {
         $_SESSION["bio"] = $row['bio'];
         $_SESSION["location"] = $row['location'];
         $_SESSION["website"] = $row['website'];
-    
+
+        try {
+          $mail = new PHPMailer(true);
+
+          $mail->isSMTP();
+          $mail->Host = 'smtp.gmail.com';
+          $mail->SMTPAuth = true;
+          $mail->Username = 'aurieljames11@gmail.com';
+          $mail->Password = 'crloyenfawqakccu';
+          $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+          $mail->Port = 465;
+          $mail->setFrom('noreply@gmail.com', 'StudentHub'); // sender email
+          $mail->addAddress('aurieljames11@gmail.com', 'Auriel'); // receiver email
+          $mail->Subject = 'Test Email from PHPMailer';
+          $mail->Body = 'This is a test email sent from localhost using PHPMailer and Gmail SMTP.';
+          $mail->isHTML(true);
+          $mail->send();
+        } catch (Exception $e) {
+          $promtMessage = '<div class="text-red-600">Mailer Error: ' . $mail->ErrorInfo . '</div>';
+        }
       } else {
         $promtMessage = '<div
       id="alert-5"
@@ -73,7 +97,7 @@ if (isset($_POST['signin'])) {
       </button>
     </div>';
       }
-    }else{
+    } else {
       $promtMessage = '<div class="text-red-600">Invalid email or password.</div>';
     }
   }

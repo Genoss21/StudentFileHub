@@ -258,6 +258,7 @@ $profilePictureUrl = !empty($profile_picture) ? $profile_picture : $defaultProfi
     });
   </script>
 
+
   <!--Toast-->
 
   <!--Disable scroll bar default-->
