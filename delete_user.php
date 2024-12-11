@@ -17,7 +17,7 @@ try {
         $deleteStmt->bindParam(':user_id', $userId);
         $deleteStmt->execute();
 
-        header("Location: index.php"); // Redirect to the main page
+        header("Location: Admin_user_dashboard.php"); // Redirect to the main page
     }
 } catch (PDOException $e) {
     die("Database connection failed: " . $e->getMessage());

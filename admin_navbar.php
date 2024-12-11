@@ -1,9 +1,9 @@
 <nav class="bg-gray-900 border-gray-200 text-white border-b-2 sticky top-0 z-50">
     <div class="w-full flex items-center justify-between p-4">
 
-        <h1 href="https://flowbite.com/" class="flex items-center space-x-3 rtl:space-x-reverse p-1">
-            <span class="self-center text-2xl whitespace-nowrap">
-                STUDENT'S ACCOUNT
+        <h1 href="https://flowbite.com/" class="flex items-center space-x-3 rtl:space-x-reverse py-1 px-3 border-r-2">
+            <span class="self-center text-2xl font-semibold whitespace-nowrap">
+                ADMIN DASHBOARD
             </span>
         </h1>
 
