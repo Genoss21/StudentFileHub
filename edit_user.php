@@ -35,7 +35,7 @@ try {
         $updateStmt->bindParam(':user_id', $userId);
         $updateStmt->execute();
 
-        header("Location: dashboard.php"); // Redirect to dashboard.php after editing
+        header("Location: Admin_user_dashboard.php"); // Redirect to dashboard.php after editing
         exit; // Ensure no further code execution after redirection
     }
 } catch (PDOException $e) {
@@ -51,107 +51,62 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit User</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
 
-        .form-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        input[type="text"],
-        input[type="email"] {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-
-        .cancel-btn {
-            background-color: #f44336;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .cancel-btn:hover,
-        button:hover {
-            opacity: 0.9;
-        }
-
-        a {
-            text-decoration: none;
-        }
-    </style>
 </head>
 
 <body>
+    <div class="form-container flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+        <h1 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-6">Edit User</h1>
 
-    <div class="form-container">
-        <h1>Edit User</h1>
-
-        <form method="POST">
+        <form method="POST" class="max-w-xs w-full bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
             <input type="hidden" name="user_id" value="<?= $user['user_id'] ?>" />
 
-            <label for="ifirstname">First Name</label>
-            <input type="text" name="ifirstname" value="<?= $user['ifirstname'] ?>" required /><br>
+            <div class="mb-5">
+                <label for="ifirstname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First
+                    Name</label>
+                <input type="text" name="ifirstname" value="<?= $user['ifirstname'] ?>" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            </div>
 
-            <label for="ilastname">Last Name</label>
-            <input type="text" name="ilastname" value="<?= $user['ilastname'] ?>" required /><br>
+            <div class="mb-5">
+                <label for="ilastname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last
+                    Name</label>
+                <input type="text" name="ilastname" value="<?= $user['ilastname'] ?>" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            </div>
 
-            <label for="iUserEmail">Email</label>
-            <input type="email" name="iUserEmail" value="<?= $user['iUserEmail'] ?>" required /><br>
+            <div class="mb-5">
+                <label for="iUserEmail"
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                <input type="email" name="iUserEmail" value="<?= $user['iUserEmail'] ?>" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            </div>
 
-            <label for="role">Role</label>
-            <input type="text" name="role" value="<?= $user['role'] ?>" required /><br>
+            <div class="mb-5">
+                <label for="role" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Role</label>
+                <input type="text" name="role" value="<?= $user['role'] ?>" required
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            </div>
 
-            <button type="submit">Save Changes</button>
-            <a href="dashboard.php"><button type="button" class="cancel-btn">Cancel</button></a>
+            <div class="flex items-center justify-between">
+                <button type="submit"
+                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    Save Changes
+                </button>
+                <a href="Admin_user_dashboard.php">
+                    <button type="button"
+                        class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white font-medium text-sm w-full sm:w-auto px-5 py-2.5 text-center">
+                        Cancel
+                    </button>
+                </a>
+            </div>
         </form>
     </div>
 
 </body>
+<script src="../path/to/flowbite/dist/flowbite.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"></script>
 
 </html>
