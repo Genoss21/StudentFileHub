@@ -89,7 +89,7 @@ if (isset($_GET['edit_post_id'])) {
                       </a>
                     </div>
                     <div class="m-2">
-                      <h2 class="mb-0 text-xl font-bold">
+                      <h2 class="mt-2 text-xl font-bold just">
                         <?php
                         if (isset($_GET['view_user_id'])) {
                           // Check if the view_user_id parameter is set in the URL
@@ -110,9 +110,7 @@ if (isset($_GET['edit_post_id'])) {
                           echo '@' . $userName;
                         }
                         ?>
-
                       </h2>
-                      <p class="mb-0 w-48 text-xs text-gray-400">9,416 Tweets</p>
                     </div>
                   </div>
 
@@ -790,7 +788,7 @@ if (isset($_GET['edit_post_id'])) {
             </section>
 
             <!--Right sidebar-->
-            <?php include 'profile_right_sidebar.php' ?>
+            <?php include 'right_sidebar.php' ?>
             <!--End of right sidebar-->
           </div>
         </main>

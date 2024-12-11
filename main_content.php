@@ -16,6 +16,7 @@
 
     <!-- Creat new post modal -->
     <?php include 'create_new_post2.php' ?>
+
     <ul class="list-none">
         <!-- List of posts -->
         <?php
@@ -52,9 +53,6 @@
                 }
             }
             ?>
-
-            <!-- Popover php-->
-            <?//php include 'popover.php' ?>
 
             <div>
                 <article class="hover:bg-gray-200 dark:hover:bg-gray-800 transition duration-350 ease-in-out">

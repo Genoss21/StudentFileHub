@@ -45,7 +45,7 @@ $profilePictureUrl = !empty($profile_picture) ? $profile_picture : $defaultProfi
       /* background-color: #132b50; */
     }
   </style>
-  <title>ツイッター</title>
+  <title>Online Document Management System(ODMS)</title>
 </head>
 
 <body class="text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-[#28282B]">
@@ -128,12 +128,22 @@ $profilePictureUrl = !empty($profile_picture) ? $profile_picture : $defaultProfi
         // Loop through selected files to validate type and size
         Array.from(fileInput.files).forEach((file) => {
           // Check if the file type is valid
-          const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf',
-            'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+          const validTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+          ];
+
           if (!validTypes.includes(file.type)) {
             isValid = false;
-            errorMessage = 'Invalid file type. Please upload an image, PDF, or Word/Excel document.';
+            errorMessage = 'Invalid file type. Please upload an image, PDF, Word, Excel, or PowerPoint document.';
           }
 
           // Check if the file size is less than 10MB
@@ -205,6 +215,7 @@ $profilePictureUrl = !empty($profile_picture) ? $profile_picture : $defaultProfi
       if (fileType === 'application/pdf') return 'PDF'; // Label for PDFs
       if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return 'Word'; // Label for Word files
       if (fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return 'Excel'; // Label for Excel files
+      if (fileType === 'application/vnd.ms-powerpoint' || fileType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') return 'PowerPoint'; // Label for PowerPoint files
       return 'File'; // Default label for other files
     }
 
@@ -215,6 +226,7 @@ $profilePictureUrl = !empty($profile_picture) ? $profile_picture : $defaultProfi
       return b.files;
     }
   </script>
+
 
   <!--For modals just incase -->
   <script>
@@ -258,6 +270,49 @@ $profilePictureUrl = !empty($profile_picture) ? $profile_picture : $defaultProfi
     });
   </script>
 
+  <!-- JavaScript to handle AJAX request and update counts dynamically -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    // Function to get updated file counts using AJAX
+    function updateFileCounts() {
+      $.ajax({
+        url: '', // Current page URL
+        method: 'GET',
+        data: { action: 'getFileCounts' },
+        success: function (response) {
+          var counts = JSON.parse(response);
+          $('#docx-count').text(counts.docxCount);
+          $('#pdf-count').text(counts.pdfCount);
+          $('#xlsx-count').text(counts.xlsxCount);
+          $('#pptx-count').text(counts.pptxCount);
+        }
+      });
+    }
+
+    // Call updateFileCounts when a file is uploaded
+    $('#fileUploadForm').on('submit', function (e) {
+      e.preventDefault(); // Prevent the form from submitting normally
+
+      var formData = new FormData(this);
+
+      $.ajax({
+        url: '', // Same page to handle the file upload
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function () {
+          // After the file is uploaded, update the file counts
+          updateFileCounts();
+        }
+      });
+    });
+
+    // Initial file count update on page load
+    $(document).ready(function () {
+      updateFileCounts();
+    });
+  </script>
 
   <!--Toast-->
 
