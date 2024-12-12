@@ -1,11 +1,16 @@
 <nav class="bg-gray-900 border-gray-200 text-white border-b-2 sticky top-0 z-50">
     <div class="w-full flex items-center justify-between p-4">
-
-        <h1 href="https://flowbite.com/" class="flex items-center space-x-3 rtl:space-x-reverse py-1 px-3 border-r-2">
-            <span class="self-center text-2xl font-semibold whitespace-nowrap">
-                ADMIN DASHBOARD
-            </span>
-        </h1>
+        <div class="flex items-center space-x-3">
+            <h1 class=" rtl:space-x-reverse py-1 px-3 border-r-2">
+                <span class="self-center text-2xl font-semibold whitespace-nowrap">
+                    ADMIN DASHBOARD
+                </span>
+            </h1>
+            <ul class="flex inline-flex space-x-5">
+                <li><a href="Admin_user_dashboard.php">Student Accounts</a></li>
+                <li><a href="Admin_post_dashboard.php">User Post</a></li>
+            </ul>
+        </div>
 
         <div class="flex">
             <div class="p-2 text-gray-500">
